@@ -1,48 +1,44 @@
-x_trajec   = [];
-y_trajec   = [];
-z_trajec   = [];
-psi_trajec = [];
-time = [];
+close all;
 
-x_trajec_corridor   = [];
-y_trajec_corridor   = [];
-z_trajec_corridor   = [];
-psi_trajec_corridor = [];
+m=1;
 
-for i=1:m
-    x_trajec   = [x_trajec   polyval(solution((i-1)*n*(order+1)+1+0*(order+1):(i-1)*n*(order+1)+(order+1)+0*(order+1)),t(i):0.01:t(i+1))];
-    y_trajec   = [y_trajec   polyval(solution((i-1)*n*(order+1)+1+1*(order+1):(i-1)*n*(order+1)+(order+1)+1*(order+1)),t(i):0.01:t(i+1))];
-    z_trajec   = [z_trajec   polyval(solution((i-1)*n*(order+1)+1+2*(order+1):(i-1)*n*(order+1)+(order+1)+2*(order+1)),t(i):0.01:t(i+1))];
-    psi_trajec = [psi_trajec polyval(solution((i-1)*n*(order+1)+1+3*(order+1):(i-1)*n*(order+1)+(order+1)+3*(order+1)),t(i):0.01:t(i+1))];
-    time       = [time t(i):0.01:t(i+1)];
-    
-    x_trajec_corridor   = [x_trajec_corridor   polyval(solution_corridor((i-1)*n*(order+1)+1+0*(order+1):(i-1)*n*(order+1)+(order+1)+0*(order+1)),t(i):0.01:t(i+1))];
-    y_trajec_corridor   = [y_trajec_corridor   polyval(solution_corridor((i-1)*n*(order+1)+1+1*(order+1):(i-1)*n*(order+1)+(order+1)+1*(order+1)),t(i):0.01:t(i+1))];
-    z_trajec_corridor   = [z_trajec_corridor   polyval(solution_corridor((i-1)*n*(order+1)+1+2*(order+1):(i-1)*n*(order+1)+(order+1)+2*(order+1)),t(i):0.01:t(i+1))];
-    psi_trajec_corridor = [psi_trajec_corridor polyval(solution_corridor((i-1)*n*(order+1)+1+3*(order+1):(i-1)*n*(order+1)+(order+1)+3*(order+1)),t(i):0.01:t(i+1))];
-end
+x_poly = solution(1+0*(order+1):(order+1)+0*(order+1));
+y_poly = solution(1+1*(order+1):(order+1)+1*(order+1));
 
+x_trajec   = [polyval(x_poly, t(1):0.01:t(2)) 2*acrob_center(2)-polyval(x_poly, flip(t(1):0.01:t(2)))];
+y_trajec   = [polyval(y_poly, t(1):0.01:t(2)) polyval(y_poly, flip(t(1):0.01:t(2)))];
+time       = [t(1):0.01:t(2) t(2):0.01:t(2)*2];
+
+%%
 figure(1);
-subplot(2,2,1);
 plot(x_trajec,y_trajec,'-k');
-plot(x_trajec_corridor,y_trajec_corridor,'-r');
-subplot(2,2,[3 4]);
-plot3(x_trajec,y_trajec,z_trajec,'-k');
-plot3(x_trajec_corridor,y_trajec_corridor,z_trajec_corridor,'-r');
 
+%%
 figure(2);
-subplot(4,1,1); plot(time,x_trajec,'-k'); ylabel('x'); hold on;
-plot(time, x_trajec_corridor,'-r');
-subplot(4,1,2); plot(time,y_trajec,'-k'); ylabel('y'); hold on;
-plot(time, y_trajec_corridor,'-r');
-subplot(4,1,3); plot(time,z_trajec,'-k'); ylabel('z'); hold on;
-plot(time, z_trajec_corridor,'-r');
-subplot(4,1,4); plot(time,psi_trajec,'-k'); xlabel('time'); ylabel('\psi'); hold on;
-plot(time, psi_trajec_corridor,'-r');
+subplot(2,1,1); plot(time,x_trajec,'-k'); ylabel('x'); hold on;
+subplot(2,1,2); plot(time,y_trajec,'-k'); ylabel('y'); hold on;
 
-for i=1:size(keyframe,2)
-    subplot(4,1,1); plot(t(i),keyframe(1,i),'or','MarkerFaceColor','r');
-    subplot(4,1,2); plot(t(i),keyframe(2,i),'or','MarkerFaceColor','r');
-    subplot(4,1,3); plot(t(i),keyframe(3,i),'or','MarkerFaceColor','r');
-    subplot(4,1,4); plot(t(i),keyframe(4,i),'or','MarkerFaceColor','r');
-end
+
+%%
+x_trajec_d   = [polyval(polyder(x_poly), t(1):0.01:t(2))  polyval(polyder(x_poly), flip(t(1):0.01:t(2)))];
+y_trajec_d   = [polyval(polyder(y_poly), t(1):0.01:t(2)) -polyval(polyder(y_poly), flip(t(1):0.01:t(2)))];
+ 
+figure(3);
+subplot(2,1,1); plot(time,x_trajec_d,'-k'); ylabel('v_x'); hold on;
+subplot(2,1,2); plot(time,y_trajec_d,'-k'); ylabel('v_y'); hold on;
+
+%%
+x_trajec_d2   = [polyval(polyder(polyder(x_poly)),t(1):0.01:t(2)) -polyval(polyder(polyder(x_poly)),flip(t(1):0.01:t(2)))];
+y_trajec_d2   = [polyval(polyder(polyder(y_poly)),t(1):0.01:t(2))  polyval(polyder(polyder(y_poly)),flip(t(1):0.01:t(2)))];
+
+figure(4);
+subplot(2,1,1); plot(time,x_trajec_d2,'-k'); ylabel('a_x'); hold on;
+subplot(2,1,2); plot(time,y_trajec_d2,'-k'); ylabel('a_y'); hold on;
+
+%%
+x_trajec_d3   = [polyval(polyder(polyder(polyder(x_poly))),t(1):0.01:t(2))  polyval(polyder(polyder(polyder(x_poly))),flip(t(1):0.01:t(2)))];
+y_trajec_d3   = [polyval(polyder(polyder(polyder(y_poly))),t(1):0.01:t(2)) -polyval(polyder(polyder(polyder(y_poly))),flip(t(1):0.01:t(2)))];
+
+figure(5);
+subplot(2,1,1); plot(time,x_trajec_d3,'-k'); ylabel('j_x'); hold on;
+subplot(2,1,2); plot(time,y_trajec_d3,'-k'); ylabel('j_y'); hold on;
